@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <!-- 指定字符集 -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>用户信息管理系统</title>
+    <!-- 1. 导入CSS的全局样式 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- 2. jQuery导入，建议使用1.9以上的版本 -->
+    <script src="js/jquery-2.1.0.min.js"></script>
+    <!-- 3. 导入bootstrap的js文件 -->
+    <!-- <script src="js/bootstrap.min.js"></script>-->
+    <style type="text/css">
+        td, th {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h3 style="text-align: center;margin-bottom: 50px;">用户信息列表</h3>
+    <div style="float: left;">
+        <form class="form-inline">
+            <div class="form-group">
+                <label for="ipt_name">姓名</label>
+                <input name="name" type="text" class="form-control" id="ipt_name">
+            </div>
+            <div class="form-group">
+                <label for="ipt_address">籍贯</label>
+                <input name="address" type="text" class="form-control" id="ipt_address">
+            </div>
+            <div class="form-group">
+                <label for="ipt_email">邮箱</label>
+                <input name="email" type="email" class="form-control" id="ipt_email">
+            </div>
+            <button id="submit1" type="button" class="btn btn-default" onclick="oncli()">查询</button>
+        </form>
+    </div>
+    <div style="float: right;margin-bottom: 15px">
+        <a class="btn btn-primary" href="add.html">添加用户</a>
+        <a id="delete" class="btn btn-primary" href="javascript:delSelect()">删除选中</a>
+    </div>
+    <table border="1" class="table table-bordered table-hover">
+        <tr class="success">
+            <th>选择</th>
+            <th>编号</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>年龄</th>
+            <th>籍贯</th>
+            <th>QQ</th>
+            <th>邮箱</th>
+            <th>超管</th>
+            <th>操作</th>
+        </tr>
+        <tbody id="info">
+<!--                        <tr>-->
+<!--                            <th>-->
+<!--                                <input id="1" type="checkbox">-->
+<!--                            </th>-->
+<!--                            <th>1</th>-->
+<!--                            <th>张三</th>-->
+<!--                            <th>男</th>-->
+<!--                            <th>18</th>-->
+<!--                            <th>北京</th>-->
+<!--                            <th>295628068</th>-->
+<!--                            <th>295628068@qq.com</th>-->
+<!--                            <th>是</th>-->
+<!--                            <th>-->
+<!--                                <a class="btn btn-default btn-sm" href="templates/update.html?id=">修改</a>-->
+<!--                                <a class="btn btn-default btn-sm" href="javascript:void(0);">删除</a>-->
+<!--                            </th>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <th>-->
+<!--                                <input id="2" type="checkbox">-->
+<!--                            </th>-->
+<!--                            <th>2</th>-->
+<!--                            <th>李四</th>-->
+<!--                            <th>男</th>-->
+<!--                            <th>18</th>-->
+<!--                            <th>西安</th>-->
+<!--                            <th>295628068</th>-->
+<!--                            <th>295628068@qq.com</th>-->
+<!--                            <th>否</th>-->
+<!--                            <th>-->
+<!--                                <a class="btn btn-default btn-sm" href="templates/update.html?id=">修改</a>-->
+<!--                                <a class="btn btn-default btn-sm" href="javascript:void(0);">删除</a>-->
+<!--                            </th>-->
+<!--                        </tr>-->
+        </tbody>
+    </table>
+    <div>
+        <nav aria-label="Page navigation">
+            <ul id="all" class="pagination">
+                 <li class="active"><a href="javascript:void(0);">1</a></li>
+                 <li><a href="javascript:void(0);">2</a></li>
+                 <li><a href="javascript:void(0);">3</a></li>
+                 <li><a href="javascript:void(0);" aria-label="Next">
+                     <span aria-hidden="true">&raquo;</span></a>
+                 </li>
+                 <span style="font-size: 20px;margin-left: 10px;"> 共 10 条记录，共 1 页
+                   </span>
+            </ul>
+        </nav>
+    </div>
+</div>
+</body>
+<script>
+    var name = "";
+    var address = "";
+    var email = "";
+    var cpage = 1;
+    var psize = 5
+
+
+    function oncli(){
+        name = jQuery("#ipt_name").val().trim();
+        address = jQuery("#ipt_address").val().trim();
+        email = jQuery("#ipt_email").val().trim();
+        getData(); // 查询后端接口，展示信息
+    }
+
+    // 点击分页按钮
+    function cliPage(cp) {
+        cpage = cp;
+        getData();
+    }
+
+
+    function getData(){
+        jQuery.getJSON("/user/list",{
+            "name":name,
+            "address":address,
+            "email":email,
+            "cpage":cpage,
+            "psize":psize
+        },function (result) {
+            if(result != null && result.data.list != null &&
+                result.data.list.length > 0) {
+                // 1、绑定列表数据
+                var listHtml = "";
+                for (var i = 0; i < result.data.list.length; i++) {
+                    var userinfo = result.data.list[i];
+                    listHtml += '<tr>\n' +
+                        '                    <th>\n' +
+                        '                        <input id="' + userinfo.id + '" type="checkbox">\n' +
+                        '                    </th>\n' +
+                        '                    <th>' + userinfo.id + '</th>\n' +
+                        '                    <th>' + userinfo.name + '</th>\n' +
+                        '                    <th>' + userinfo.sex + '</th>\n' +
+                        '                    <th>' + userinfo.age + '</th>\n' +
+                        '                    <th>' + userinfo.address + '</th>\n' +
+                        '                    <th>' + userinfo.qq + '</th>\n' +
+                        '                    <th>' + userinfo.email + '</th>\n' +
+                        '                    <th>' + (userinfo.isadmin == 0 ? "否" : "是") + '</th>\n' +
+                        '                    <th>\n' +
+                        '                        <a class="btn btn-default btn-sm" href="update.html?uid=' + userinfo.id + '">修改</a>\n' +
+                        '                        <a class="btn btn-default btn-sm" href="javascript:del(' + userinfo.id + ');">删除</a>\n' +
+                        '            </th>\n' +
+                        '                </tr>';
+                }
+                jQuery("#info").html(listHtml);
+
+
+                // 2.绑定分页信息
+                var tpage = result.data.tpage; //总页数
+                var pageHtml = "";
+                if (tpage > 1) {
+                    if(cpage != 1){
+                        pageHtml += '<li><a href="javascript:cliPage(' + (cpage - 1) + ');" aria-label="Previous">\n' +
+                            '                                    <span aria-hidden="true">&laquo;</span></a>\n'
+                    }
+                    for(var j = 1; j <= tpage; j++){
+                        // 拼接当前页
+                        if(cpage == j) { // 高亮当前页面序号
+                            pageHtml += '<li class="active"><a href="javascript:cliPage(' + j + ');">' + j + '</a></li>\n';
+                        }else{
+                            pageHtml += '<li><a href="javascript:cliPage(' + j + ');">' + j + '</a></li>\n';
+                        }
+                    }
+                    // 下一页的按钮 与 动态显示：共 ？ 条记录，共？页
+                    if(cpage != tpage) {
+                        pageHtml += '<li><a href="javascript:cliPage(' + (cpage + 1) + ');" aria-label="Next">\n' +
+                            '                                    <span aria-hidden="true">&raquo;</span></a>\n' +
+                            '                                </li>\n' +
+                            '                                <span style="font-size: 20px;margin-left: 10px;"> 共' + result.data.tcount + '条记录，共' + tpage + '页\n' +
+                            '                                  </span>\n'
+                    }
+                }
+                jQuery("#all").html(pageHtml);
+
+            }
+        });
+    }
+    getData();
+
+
+
+
+    // 单条删除
+    function del(id) {
+        if (confirm("是否进行删除？")) {
+            jQuery.getJSON("/user/del", {"id": id}, function (result) {
+                if (result != null && result.data > 0) {
+                    alert("恭喜：删除成功！");
+                    // 刷新当前页面
+                    location.href = location.href;
+                } else {
+                    alert("抱歉：删除失败 "+result.message);
+                }
+            });
+        }
+
+    }
+
+    // 多条删除
+    // 思路1、for循环多条id，每次循环调用单条循环删除方法的接口；缺点：需要与后端进行N次交互，浪费带宽
+    // 思路2、将所有id集合一次发送给后端，后端对前端传递的id集合做统一的删除
+    //      (a) 点击选中按钮后，拿到选中的用户id集合
+    //      (b) 后端拿到id集合之后，使用<for>循环的标签，实现多条信息的删除
+    function delSelect() {
+        // 1、获取需要删除的用户id集合
+        var ids = "";
+        jQuery("#info").find("tr").each(function (i) {
+            //jQuery(this) == 当前行tr
+            if(jQuery(this).find("th:first").find("input").prop("checked")==true){  // 判断 当前行tr的第一列的input控件中的 chekbox属性 是否为选中状态        prop("checked")判断当前控件是否为选中状态
+                ids += ((jQuery(this).find("th:first").find("input").attr("id")) + ',')
+            };
+        });
+        if(ids != ""){
+            confirm("确认删除？")
+            // 2、访问后端接口进行操作
+            jQuery.getJSON("/user/dels",{"ids":ids},function (result) {
+                if(result != null && result.status == 0 && result.data > 0){
+                    alert("删除成功");
+                    location.href = location.href;
+                }else {
+                    alert("删除失败");
+                }
+            })
+        }else {
+            alert("请先选中要删除的数据")
+        }
+
+
+
+
+
+    }
+
+</script>
+
+</html>

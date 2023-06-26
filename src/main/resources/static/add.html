@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<!-- 网页使用的语言 -->
+<html lang="zh-CN">
+<head>
+    <!-- 指定字符集 -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>添加用户</title>
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <script src="js/jquery-2.1.0.min.js"></script>
+</head>
+<body>
+<div class="container" style="width: 400px;">
+    <h3 style="text-align: center;">添加用户</h3>
+    <div class="form-group">
+        <label for="username">登录名：</label>
+        <input type="text" class="form-control" id="username" name="username" placeholder="请输入登录名"/>
+    </div>
+
+    <div class="form-group">
+        <label for="name">姓名：</label>
+        <input type="text" class="form-control" id="name" name="name" placeholder="请输入姓名"/>
+    </div>
+
+    <div class="form-group">
+        <label for="password">密码：</label>
+        <input type="password" class="form-control" id="password" name="password" placeholder="请输入密码"/>
+    </div>
+
+    <div class="form-group">
+        <label for="password2">确认密码：</label>
+        <input type="password" class="form-control" id="password2" name="password" placeholder="请输入密码"/>
+    </div>
+
+    <div class="form-group">
+        <label>性别：</label>
+        <input id="man" type="radio" name="sex" value="男" checked="checked"/>男
+        &nbsp;&nbsp;&nbsp;
+        <input id="women" type="radio" name="sex" value="女"/>女
+    </div>
+
+    <div class="form-group">
+        <label for="age">年龄：</label>
+        <input type="number" class="form-control" id="age" name="age" placeholder="请输入年龄"/>
+    </div>
+
+    <div class="form-group">
+        <label for="address">籍贯：</label>
+        <select name="address" id="address" class="form-control">
+            <option value="北京">北京</option>
+            <option value="上海">上海</option>
+            <option value="广州">广州</option>
+            <option value="深圳">深圳</option>
+            <option value="成都">成都</option>
+            <option value="杭州">杭州</option>
+            <option value="重庆">重庆</option>
+            <option value="西安">西安</option>
+            <option value="武汉">武汉</option>
+            <option value="沧州">沧州</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="qq">QQ：</label>
+        <input type="text" id="qq" class="form-control" name="qq" placeholder="请输入QQ号码"/>
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email：</label>
+        <input type="text" id="email" class="form-control" name="email" placeholder="请输入邮箱地址"/>
+    </div>
+
+    <div class="form-group" id="adminDiv" style="display: none;">
+        <label for="email">超级管理员：</label>
+        <input id="admin_yes" type="radio" name="isadmin" value="1"/>是
+        &nbsp;&nbsp;&nbsp;
+        <input id="admin_no" type="radio" name="isadmin" value="0" checked="checked"/>否
+    </div>
+
+    <div class="form-group" style="text-align: center">
+        <input id="btn_sub" class="btn btn-primary" type="button" value="提交" onclick="mysub()"/>
+        <input id="btn_back" class="btn btn-default" type="button" value="返回" onclick="location.href='list.html'"/>
+    </div>
+
+</div>
+</body>
+<script>
+    jQuery.getJSON("/user/checkadmin",{},function (result) {
+        if(result!=null && result.data==1){
+            // 超级管理员
+            jQuery("#adminDiv").show();
+        }
+    });
+    // 提交方法
+    function mysub() {
+        // 1.非空效验
+        var username = jQuery("#username");
+        var name = jQuery("#name");
+        var password = jQuery("#password");
+        var password2 = jQuery("#password2");
+        var age = jQuery("#age");
+        var qq = jQuery("#qq");
+        var email = jQuery("#email");
+        if(username.val().trim()==""){
+            alert("请先输入登录名！");
+            username.focus();
+            return false;
+        }
+        if(name.val().trim()==""){
+            alert("请先输入姓名！");
+            name.focus();
+            return false;
+        }
+        if(password.val().trim()==""){
+            alert("请先输入密码！");
+            password.focus();
+            return false;
+        }
+        if(password2.val().trim()==""){
+            alert("请先输入确认密码！");
+            password2.focus();
+            return false;
+        }
+        if(password.val()!=password2.val()){
+            alert("两次输入的密码不一致，请检查！");
+            password.focus();
+            return  false;
+        }
+        if(age.val().trim()==""){
+            alert("请先输入年龄！");
+            age.focus();
+            return false;
+        }
+        if(qq.val().trim()==""){
+            alert("请先输入QQ！");
+            qq.focus();
+            return false;
+        }
+        if(email.val().trim()==""){
+            alert("请先输入电子邮箱！");
+            email.focus();
+            return false;
+        }
+        // 提交数据到后端
+        jQuery.getJSON("/user/add",{
+            "username":username.val().trim(),
+            "name":name.val().trim(),
+            "password":password.val().trim(),
+            "sex":jQuery("input[name=sex]:checked").val(),
+            "age":age.val().trim(),
+            "address":jQuery("#address").val(),
+            "qq":qq.val().trim(),
+            "email":email.val().trim(),
+            "isadmin":jQuery("input[name=isadmin]:checked").val()
+        },function (result) {
+            if(result!=null && result.status==0 && result.data>0){
+                // 添加成功
+                alert("恭喜：添加成功！");
+                // todo:继续添加或返回到列表页
+            }else{
+                alert("抱歉：添加失败，"+result.message);
+            }
+        });
+    }
+</script>
+</html>

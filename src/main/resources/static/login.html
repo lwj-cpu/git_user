@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>用户信息管理系统登录页面</title>
+
+    <!-- 1. 导入CSS的全局样式 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- 2. jQuery导入，建议使用1.9以上的版本 -->
+    <script src="js/jquery-2.1.0.min.js"></script>
+    <!-- 3. 导入bootstrap的js文件 -->
+    <!--<script src="js/bootstrap.min.js"></script>-->
+    <script type="text/javascript"></script>
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: auto;
+        }
+
+        body {
+            background: url(images/acg.gy_16.jpg) no-repeat 100% 100%;
+            background-size: cover;
+        }
+    </style>
+
+</head>
+<body id="body">
+<div class="container" style="width: 400px;margin-top: 110px;background-color: rgba(255,255,255,0.8)">
+    <h3 style="text-align: center;">后台管理员登录</h3>
+    <div class="form-group">
+        <label for="username">用户名：</label>
+        <input type="text" name="user" class="form-control" id="username" placeholder="请输入用户名"/>
+    </div>
+
+    <div class="form-group">
+        <label for="password">密码：</label>
+        <input type="password" name="password" class="form-control" id="password" placeholder="请输入密码"/>
+    </div>
+    <div>
+        测试超管帐号：admin
+        &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;测试密码：123
+    </div>
+    <hr/>
+    <div class="form-group" style="text-align: center;"><!--class="form-group"-->
+        <input style="width: 200px;height: 40px" id="submit"
+               class="btn btn btn-primary" type="button" value="登录" onclick="mysub()">
+    </div>
+
+
+</div>
+<script>
+    function mysub() {
+        // 获取用户名
+        var username = jQuery("#username");
+        // 获取密码
+        var password = jQuery("#password");
+        // 非空效验
+        if (username.val().trim() == "" ||
+            password.val().trim() == "") {
+            alert("请先输入用户名和密码才能进行登录！");
+            return false;
+        }
+        // 提交数据到后端进行登录效验
+        jQuery.getJSON("/user/login", {
+            "username": username.val(),
+            "password": password.val()
+        }, function (result) {
+            if (result != null && result.status == 0) {
+                // 登录成功
+                alert("登录成功");
+                location.href = "list.html";
+            } else {
+                // todo:安全限制（如果一定时间内输入的用户名和密码错误次数过多，就可以先冻结账户一段时间）
+                 alert(result.message);
+            }
+        });
+    }
+</script>
+</body>
+</html>
